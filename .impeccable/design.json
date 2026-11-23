@@ -1,0 +1,338 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-23T00:00:00Z",
+  "title": "Design System: Verbum Tetris",
+  "extensions": {
+    "colorMeta": {
+      "blank-red": {
+        "role": "primary",
+        "displayName": "Blank-Tile Red",
+        "canonical": "#b83a24",
+        "tonalRamp": [
+          "#3a120a",
+          "#5c1d10",
+          "#7f2916",
+          "#a0341f",
+          "#b83a24",
+          "#d0664f",
+          "#e39a88",
+          "#f3d3ca"
+        ]
+      },
+      "tile-terracotta": {
+        "role": "secondary",
+        "displayName": "Terracotta",
+        "canonical": "#9b4a27",
+        "tonalRamp": [
+          "#2c1509",
+          "#4a2412",
+          "#6a3319",
+          "#8a4122",
+          "#9b4a27",
+          "#bb7a58",
+          "#d6a78f",
+          "#ecd6ca"
+        ]
+      },
+      "tile-brown": {
+        "role": "secondary",
+        "displayName": "Brown",
+        "canonical": "#7c5846",
+        "tonalRamp": [
+          "#251a14",
+          "#3d2b22",
+          "#563d30",
+          "#6b4c3c",
+          "#7c5846",
+          "#a38272",
+          "#c5aea2",
+          "#e6dbd5"
+        ]
+      },
+      "tile-clay": {
+        "role": "secondary",
+        "displayName": "Clay",
+        "canonical": "#bf7e4f",
+        "tonalRamp": [
+          "#3a2212",
+          "#5a3820",
+          "#7d5030",
+          "#a06a40",
+          "#bf7e4f",
+          "#d1a07c",
+          "#e3c3a8",
+          "#f3e4d6"
+        ]
+      },
+      "tile-taupe": {
+        "role": "secondary",
+        "displayName": "Taupe",
+        "canonical": "#b39a86",
+        "tonalRamp": [
+          "#2f261f",
+          "#4b3e33",
+          "#695847",
+          "#877160",
+          "#b39a86",
+          "#c6b5a6",
+          "#dbcfc4",
+          "#efe9e3"
+        ]
+      },
+      "tile-sand": {
+        "role": "secondary",
+        "displayName": "Sand",
+        "canonical": "#dfc79a",
+        "tonalRamp": [
+          "#3f3220",
+          "#615030",
+          "#866f42",
+          "#b09559",
+          "#dfc79a",
+          "#e8d6b3",
+          "#f0e4cb",
+          "#f8f1e3"
+        ]
+      },
+      "tile-cream": {
+        "role": "secondary",
+        "displayName": "Cream",
+        "canonical": "#efe0bd",
+        "tonalRamp": [
+          "#4a3f27",
+          "#6e5f3b",
+          "#938058",
+          "#bba982",
+          "#efe0bd",
+          "#f3e8cd",
+          "#f7efdc",
+          "#fbf7ec"
+        ]
+      },
+      "tile-sage": {
+        "role": "secondary",
+        "displayName": "Sage",
+        "canonical": "#c5c9bb",
+        "tonalRamp": [
+          "#2b2e26",
+          "#434839",
+          "#5e644f",
+          "#868d74",
+          "#c5c9bb",
+          "#d3d6cb",
+          "#e2e4dc",
+          "#f1f2ee"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Cream Table",
+        "canonical": "#efe3c6",
+        "tonalRamp": [
+          "#17120e",
+          "#2a221b",
+          "#4a3f2e",
+          "#7a6b4e",
+          "#b3a37e",
+          "#d2c29d",
+          "#efe3c6",
+          "#f8f1de"
+        ]
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "Walnut Ink",
+        "canonical": "#2e1d14",
+        "tonalRamp": [
+          "#140c08",
+          "#2e1d14",
+          "#4a362a",
+          "#6f5646",
+          "#947d6d",
+          "#b8a597",
+          "#d9cdc3",
+          "#f2ece7"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Tile Letter",
+        "purpose": "Bold uppercase letters on tiles; size is 0.6 of the tile side."
+      },
+      "headline": {
+        "displayName": "Game Title",
+        "purpose": "Side-column title."
+      },
+      "title": {
+        "displayName": "Score",
+        "purpose": "Score and counter, tabular numerals."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Hints, definitions, labels."
+      },
+      "label": {
+        "displayName": "Tool Label",
+        "purpose": "Tool tiles and compact controls."
+      }
+    },
+    "shadows": [
+      {
+        "name": "tile-bevel",
+        "value": "inset 0 0.03s 0 rgba(255,255,255,.45), inset 0 -0.05s 0 rgba(0,0,0,.16), 0 0.12s 0.14s -0.06s rgba(var(--shadow-rgb),.5), 0 1px 2px rgba(var(--shadow-rgb),.3)",
+        "purpose": "Cover tiles and cover button; s is the tile side."
+      },
+      {
+        "name": "tile-small",
+        "value": "inset 0 -2px 0 rgba(0,0,0,.16), 0 2px 3px rgba(var(--shadow-rgb),.3)",
+        "purpose": "Word tiles in the card."
+      },
+      {
+        "name": "control",
+        "value": "inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 0 rgba(0,0,0,.14), 0 6px 10px -4px rgba(var(--shadow-rgb),.5)",
+        "purpose": "Tool tiles and in-game button."
+      },
+      {
+        "name": "pressed",
+        "value": "inset 0 2px 4px rgba(0,0,0,.28), 0 1px 2px rgba(var(--shadow-rgb),.3)",
+        "purpose": "Pressed tool tile."
+      },
+      {
+        "name": "card",
+        "value": "0 10px 28px rgba(var(--shadow-rgb),.35)",
+        "purpose": "Word card over the board."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "All tile, button and card motion."
+      },
+      {
+        "name": "settle",
+        "value": "0.6s, delay 150ms + 85ms per tile",
+        "purpose": "Cover tiles drop in."
+      },
+      {
+        "name": "cover-dissolve",
+        "value": "5s ease-in-out, opacity to 0 and blur 16px",
+        "purpose": "Cover leaving."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "card-to-board",
+        "value": "1080px (three-column grid becomes flex wrap; cards return to board centre)"
+      },
+      {
+        "name": "stack",
+        "value": "720px"
+      },
+      {
+        "name": "touch-notice",
+        "value": "(hover: none) and (pointer: coarse)"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Letter Tile",
+      "kind": "custom",
+      "refersTo": "tile-cover",
+      "description": "Bevelled wooden letter tile with score subscript.",
+      "html": "<span class=\"ds-tile\">V<i>4</i></span>",
+      "css": ".ds-tile { --s: 64px; position: relative; display: grid; place-items: center; width: var(--s); height: var(--s); border-radius: calc(var(--s) * 0.15); background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0) 46%), #9b4a27; color: #f7ecd3; font: 700 calc(var(--s) * 0.6)/1 'Jost Variable', 'Jost', system-ui, sans-serif; box-shadow: inset 0 calc(var(--s) * 0.03) 0 rgba(255,255,255,0.45), inset 0 calc(var(--s) * -0.05) 0 rgba(0,0,0,0.16), 0 calc(var(--s) * 0.12) calc(var(--s) * 0.14) calc(var(--s) * -0.06) rgba(74,42,22,0.5), 0 1px 2px rgba(74,42,22,0.3); } .ds-tile i { position: absolute; right: 11%; bottom: 8%; font: 600 calc(var(--s) * 0.2)/1 'Jost Variable', 'Jost', system-ui, sans-serif; font-style: normal; }"
+    },
+    {
+      "name": "Blank-Tile Button",
+      "kind": "button",
+      "refersTo": "button-blank",
+      "description": "The primary action, a red blank tile.",
+      "html": "<button class=\"ds-btn\" type=\"button\">Jugar de nuevo</button>",
+      "css": ".ds-btn { border: 0; border-radius: 8px; padding: 12px 22px; cursor: pointer; background: linear-gradient(180deg, rgba(255,255,255,0.2), rgba(255,255,255,0) 46%), #b83a24; color: #f7ecd3; font: 600 1rem/1 'Jost Variable', 'Jost', system-ui, sans-serif; letter-spacing: 0.02em; box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -2px 0 rgba(0,0,0,0.2), 0 6px 10px -4px rgba(74,42,22,0.55); transition: transform 0.15s cubic-bezier(0.16,1,0.3,1), filter 0.15s; } .ds-btn:hover { transform: translateY(-1px); filter: brightness(1.07); } .ds-btn:active { transform: translateY(1px); filter: none; } .ds-btn:focus-visible { outline: 3px solid #2e1d14; outline-offset: 4px; }"
+    },
+    {
+      "name": "Tool Tile",
+      "kind": "button",
+      "refersTo": "tool",
+      "description": "Cream tool tile for theme and sound; same in both themes.",
+      "html": "<button class=\"ds-tool\" type=\"button\"><svg viewBox=\"0 0 24 24\" width=\"22\" height=\"22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z\"/></svg><span>Dark mode</span></button>",
+      "css": ".ds-tool { display: flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 14px; border: 0; border-radius: 8px; cursor: pointer; background: #efe0bd; color: #2e1d14; font: 600 0.875rem/1 'Jost Variable', 'Jost', system-ui, sans-serif; box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -2px 0 rgba(0,0,0,0.14), 0 6px 10px -4px rgba(74,42,22,0.5); transition: transform 0.15s cubic-bezier(0.16,1,0.3,1), background 0.15s; } .ds-tool:hover { background: #f6ebd0; transform: translateY(-1px); } .ds-tool:active { transform: translateY(1px); } .ds-tool:focus-visible { outline: 3px solid #c4432c; outline-offset: 3px; }"
+    },
+    {
+      "name": "Word Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Cleared word spelled in tiles with class and definition; sits in the left column beside the board on wide windows (300px, top aligned), centred on the board at 1080px and narrower. Shown only for words with a definition.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-word\"><span class=\"ds-t\">S</span><span class=\"ds-t\">O</span><span class=\"ds-t\">L</span></div><p class=\"ds-kind\">sustantivo</p><p class=\"ds-def\">Estrella alrededor de la cual gira la Tierra.</p></div>",
+      "css": ".ds-card { padding: 12px 14px 14px; background: #f8f0dc; border: 1px solid #d2c29d; border-radius: 12px; box-shadow: 0 10px 28px rgba(74,42,22,0.35); color: #2e1d14; font-family: 'Jost Variable', 'Jost', system-ui, sans-serif; width: 240px; } .ds-word { display: flex; gap: 3px; } .ds-t { display: grid; place-items: center; width: 1.75rem; height: 1.75rem; border-radius: 5px; background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0) 46%), #dfc79a; color: #2e1d14; font-size: 1.05rem; font-weight: 700; line-height: 1; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.16), 0 2px 3px rgba(74,42,22,0.3); } .ds-kind { margin: 10px 0 2px; color: #6f5646; font-size: 0.8125rem; } .ds-def { margin: 0; color: #4a362a; font-size: 0.9375rem; }"
+    },
+    {
+      "name": "Score Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Side-column panel of label and value rows.",
+      "html": "<dl class=\"ds-panel\"><div class=\"ds-row\"><dt>Puntos</dt><dd>120</dd></div><div class=\"ds-row\"><dt>Palabras de 3 letras</dt><dd>5</dd></div></dl>",
+      "css": ".ds-panel { margin: 0; padding: 4px 16px; background: #f8f0dc; border: 1px solid #d2c29d; border-radius: 12px; color: #2e1d14; font-family: 'Jost Variable', 'Jost', system-ui, sans-serif; width: 280px; } .ds-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; } .ds-row + .ds-row { border-top: 1px solid rgba(74,42,22,0.12); } .ds-panel dt { color: #6f5646; font-size: 0.9375rem; } .ds-panel dd { margin: 0; font-size: 1.625rem; font-weight: 650; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Board Tile (canvas)",
+      "kind": "custom",
+      "refersTo": "tile-cover",
+      "description": "Canvas tile drawn in app.ts: palette from --t0..--t6, top sheen, darker bottom edge, 1px hairline edge (shadow-rgb at .3) when settled; falling piece has an ink outline (--hot-outline) and a bigger shadow; letter Jost 700 at 0.6 of the side.",
+      "html": "<span class=\"ds-tile\">E</span>",
+      "css": ".ds-tile { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 7px; background: linear-gradient(180deg, rgba(255,255,255,0.24), rgba(255,255,255,0) 46%), #efe0bd; color: #2e1d14; font: 700 29px/1 'Jost Variable', system-ui, sans-serif; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(74,42,22,0.3), 0 4px 7px rgba(74,42,22,0.4); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Letter Tabletop",
+    "overview": "One world: a warm cream tabletop with bevelled wooden letter tiles in the manner of a Scrabble specimen poster, recreated under its own title. Everything that moves or can be read is either a tile or sits on the table beside one. The cover spells VERBUM TETRIS as a crossword of tiles that settle in one by one; the game then reuses the same tile as the falling piece, the cleared-word card and the phone notice.\n\nDensity is calm. The board is the one large object, with a single narrow side panel; nothing competes with the tiles. Colour comes from the tiles and one red action; the table itself is neutral and warm, never white or black.\n\nTwo themes share the world. Light is the cream table. Dark is the same table at night: only ground, panels, text and shadows change; the tiles keep their colours and inks.",
+    "keyCharacteristics": [
+      "Bevelled tiles: top highlight, bottom inner edge, soft contact shadow.",
+      "Seven earth tile colours, each paired with its own ink.",
+      "One geometric sans (Jost Variable) at weights 600 to 700.",
+      "One red blank-tile action.",
+      "Cream tool tiles identical in both themes."
+    ],
+    "rules": [
+      {
+        "name": "The Same Tiles Rule",
+        "body": "Theme switches change ground, panels, text and shadows only. Tile colours and inks never change between light and dark.",
+        "section": "colors"
+      },
+      {
+        "name": "The Paired Ink Rule",
+        "body": "Every tile colour travels with its ink token (--tN and --tN-ink); contrast is decided once, there.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Red Rule",
+        "body": "Red is the blank-tile action. It is not used for tiles, errors or decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tile Letter Rule",
+        "body": "Letters on tiles are bold (700) and uppercase; everything else stays weight 400 to 650.",
+        "section": "typography"
+      },
+      {
+        "name": "The Lying-Flat Rule",
+        "body": "Shadows are soft and offset downward with negative spread; no hard offset shadows, no glow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do build every new surface from tiles on the cream table; take letters, colours and inks from the seven tile pairs.",
+      "Do keep tool tiles the same in both themes and the tile colours the same in both themes.",
+      "Do use Jost Variable only, bold on tiles.",
+      "Do give interactive tiles a visible 3px focus outline and a reduced-motion fallback."
+    ],
+    "donts": [
+      "Don't re-tune the cover tile look (bevel, gradient, radius, shadow) without the owner; they approved it.",
+      "Don't add a second accent next to Blank-Tile Red or colour tiles outside the seven.",
+      "Don't use hard offset shadows, glows, pure white or pure black grounds, or a second typeface."
+    ]
+  }
+}

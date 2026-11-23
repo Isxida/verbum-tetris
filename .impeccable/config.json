@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-23T21:56:00.080Z",
+        "reason": "assistant decided: tile shadows are warm-brown offset+blur elevation cast on the cream cover surface, which fully overlays the dark body the detector reads; not a halo"
+      }
+    ]
+  }
+}

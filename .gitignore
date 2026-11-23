@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.idea/
+# 1.2 GB, demasiado grande para git. Solo hace falta para regenerar public/ (`npm run words`)
+dic_spa/
+# ~80 MB en ~2900 archivos; se genera igual que words.txt
+public/defs/

@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verbum Tetris</title>
+  <style>
+    /* Un solo mundo: mesa crema y fichas de madera. El tema oscuro cambia solo el fondo y lo que se lee sobre él. */
+    :root {
+      color-scheme: light;
+      --ground: #efe3c6;
+      --ground-hi: #f8f1de;
+      --bg: radial-gradient(120% 90% at 50% 36%, var(--ground-hi) 0%, var(--ground) 100%);
+      --board: #e6d9bb;
+      --panel: #f8f0dc;
+      --card: rgba(248, 240, 220, 0.97);
+      --veil: rgba(239, 227, 198, 0.9);
+      --line: rgba(74, 42, 22, 0.12);
+      --edge: #d2c29d;
+      --text: #2e1d14;
+      --soft: #4a362a;
+      --muted: #6f5646;
+      --shadow-rgb: 74, 42, 22;
+      --hot-outline: #2e1d14;
+      /* Fichas, en el orden de TILE_COLORS (game.ts); cada una trae su tinta para el contraste */
+      --t0: #9b4a27; --t0-ink: #f7ecd3; /* terracota */
+      --t1: #7c5846; --t1-ink: #f7ecd3; /* marrón */
+      --t2: #bf7e4f; --t2-ink: #2e1d14; /* arcilla */
+      --t3: #b39a86; --t3-ink: #2e1d14; /* gris pardo */
+      --t4: #dfc79a; --t4-ink: #2e1d14; /* arena */
+      --t5: #efe0bd; --t5-ink: #2e1d14; /* crema */
+      --t6: #c5c9bb; --t6-ink: #2e1d14; /* salvia */
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --display: "Jost Variable", "Jost", system-ui, sans-serif;
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --ground: #17120e;
+      --ground-hi: #2a221b;
+      --board: #211a15;
+      --panel: #2b231c;
+      --card: rgba(43, 35, 28, 0.97);
+      --veil: rgba(23, 18, 14, 0.9);
+      --line: rgba(255, 240, 210, 0.08);
+      --edge: #43372b;
+      --text: #f3e8d0;
+      --soft: #dccfb4;
+      --muted: #b3a38c;
+      --shadow-rgb: 0, 0, 0;
+      --hot-outline: #f3e8d0;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--ground); }
+    body {
+      margin: 0; min-height: 100dvh; display: grid; place-items: center;
+      background: var(--bg); color: var(--text);
+      font: 1rem/1.45 var(--display);
+    }
+    ::selection { background: var(--text); color: var(--ground-hi); }
+    /* Tres columnas: definiciones a la izquierda (salen del tablero), tablero al centro, panel a la derecha */
+    main { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 28px; align-items: start; width: 100%; max-width: 1400px; padding: 20px; }
+
+    /* Asignación de color a cada ficha: por nombre en la portada, por índice (k0…k6) en el juego */
+    .k0, .terra { --tile: var(--t0); --tint: var(--t0-ink); }
+    .k1, .brown { --tile: var(--t1); --tint: var(--t1-ink); }
+    .k2, .clay  { --tile: var(--t2); --tint: var(--t2-ink); }
+    .k3, .taupe { --tile: var(--t3); --tint: var(--t3-ink); }
+    .k4, .sand  { --tile: var(--t4); --tint: var(--t4-ink); }
+    .k5, .cream { --tile: var(--t5); --tint: var(--t5-ink); }
+    .k6, .sage  { --tile: var(--t6); --tint: var(--t6-ink); }
+
+    /* ---------- Portada: crucigrama de fichas de madera ---------- */
+    .cover {
+      --s: clamp(44px, min(9.2vw, 10.4vh), 92px); /* lado de la ficha */
+      --gap: calc(var(--s) * 0.07);
+      --wood-ink: #2e1d14;
+      position: fixed; inset: 0; z-index: 10;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--s) * 0.7);
+      background: var(--bg); color: var(--wood-ink); font-family: var(--display);
+    }
+    .cover[hidden] { display: none; }
+    .cover.leaving { opacity: 0; filter: blur(16px); pointer-events: none; transition: opacity 5s ease-in-out, filter 5s ease-in-out; }
+    .title { margin: 0; }
+    .crossword { display: grid; grid-template: repeat(6, var(--s)) / repeat(6, var(--s)); gap: var(--gap); }
+
+    .tile {
+      position: relative; display: grid; place-items: center; width: var(--s); height: var(--s);
+      grid-area: var(--r) / var(--c);
+      border-radius: calc(var(--s) * 0.15);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 46%), var(--tile);
+      color: var(--tint, var(--wood-ink));
+      font: 700 calc(var(--s) * 0.6) / 1 var(--display);
+      padding-top: calc(var(--s) * 0.03);
+      box-shadow:
+        inset 0 calc(var(--s) * 0.03) 0 rgba(255, 255, 255, 0.45),
+        inset 0 calc(var(--s) * -0.05) 0 rgba(0, 0, 0, 0.16),
+        0 calc(var(--s) * 0.12) calc(var(--s) * 0.14) calc(var(--s) * -0.06) rgba(var(--shadow-rgb), 0.5),
+        0 1px 2px rgba(var(--shadow-rgb), 0.3);
+      animation: settle 0.6s var(--ease) both;
+      animation-delay: calc(150ms + var(--i) * 85ms);
+    }
+    .tile i { position: absolute; right: 11%; bottom: 8%; font: 600 calc(var(--s) * 0.2) / 1 var(--display); font-style: normal; }
+    @keyframes settle { from { opacity: 0; transform: translateY(calc(var(--s) * -0.5)) rotate(-6deg); } }
+
+    /* El botón es la ficha roja en blanco de la referencia */
+    .go {
+      width: calc(var(--s) * 3.6); height: calc(var(--s) * 0.9); border: 0; cursor: pointer;
+      border-radius: calc(var(--s) * 0.15);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 46%), #b83a24;
+      color: #f7ecd3; font: 600 calc(var(--s) * 0.36) / 1 var(--display); letter-spacing: 0.03em;
+      box-shadow:
+        inset 0 calc(var(--s) * 0.03) 0 rgba(255, 255, 255, 0.4),
+        inset 0 calc(var(--s) * -0.05) 0 rgba(0, 0, 0, 0.2),
+        0 calc(var(--s) * 0.12) calc(var(--s) * 0.14) calc(var(--s) * -0.06) rgba(var(--shadow-rgb), 0.55),
+        0 1px 2px rgba(var(--shadow-rgb), 0.3);
+      transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease), filter 0.18s, opacity 0.2s;
+      animation: rise 0.5s var(--ease) 1.5s both;
+    }
+    .go:hover {
+      transform: translateY(calc(var(--s) * -0.05)); filter: brightness(1.07);
+      box-shadow:
+        inset 0 calc(var(--s) * 0.03) 0 rgba(255, 255, 255, 0.4),
+        inset 0 calc(var(--s) * -0.05) 0 rgba(0, 0, 0, 0.2),
+        0 calc(var(--s) * 0.2) calc(var(--s) * 0.22) calc(var(--s) * -0.08) rgba(var(--shadow-rgb), 0.6),
+        0 1px 2px rgba(var(--shadow-rgb), 0.3);
+    }
+    .go:active { transform: translateY(calc(var(--s) * 0.02)); filter: none; }
+    .go:focus-visible { outline: 3px solid var(--text); outline-offset: 5px; } /* tinta oscura en claro, crema en oscuro */
+    .go:disabled { cursor: default; opacity: 0.7; transform: none; filter: none; }
+    @keyframes rise { from { opacity: 0; transform: translateY(calc(var(--s) * 0.3)); } }
+
+    /* Herramientas fijas (tema y música): fichas crema, legibles sobre cualquier fondo */
+    .tools { position: fixed; top: 16px; right: 16px; z-index: 20; display: flex; gap: 10px; }
+    .tool {
+      display: flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 14px;
+      border: 0; border-radius: 8px; cursor: pointer; background: #efe0bd; color: #2e1d14;
+      font: 600 0.875rem/1 var(--display);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.14), 0 6px 10px -4px rgba(var(--shadow-rgb), 0.5);
+      transition: transform 0.15s var(--ease), background 0.15s, box-shadow 0.15s;
+    }
+    .tool.icon { width: 44px; padding: 0; }
+    .tool:hover { background: #f6ebd0; transform: translateY(-1px); }
+    .tool:active { transform: translateY(1px); }
+    .tool[aria-pressed="true"] { background: #d3bd90; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.28), 0 1px 2px rgba(var(--shadow-rgb), 0.3); }
+    .tool:focus-visible { outline: 3px solid #c4432c; outline-offset: 3px; } /* el rojo se ve igual sobre fondo crema y oscuro */
+    .tool svg { width: 22px; height: 22px; flex: none; }
+    .tool .moon { fill: none; }
+    #theme[aria-pressed="true"] .moon { fill: currentColor; }
+    #mute .off { display: none; }
+    #mute[aria-pressed="true"] .waves { display: none; }
+    #mute[aria-pressed="true"] .off { display: block; }
+
+    /* ---------- Juego ---------- */
+    .stage { position: relative; grid-column: 2; max-width: 100%; }
+    canvas { display: block; max-width: 100%; height: auto; background: var(--board); border: 1px solid var(--edge); border-radius: 10px; }
+
+    /* La palabra formada y su definición aparecen en la columna izquierda, junto al tablero, sin tapar la partida */
+    .cards {
+      position: absolute; top: 0; right: calc(100% + 24px); width: 300px;
+      display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+    }
+    .card {
+      padding: 12px 14px 14px; background: var(--card); border: 1px solid var(--edge); border-radius: 12px;
+      box-shadow: 0 10px 28px rgba(var(--shadow-rgb), 0.35); animation: card-in 0.26s var(--ease);
+    }
+    .card.out { opacity: 0; transform: translateY(-4px); transition: opacity 0.2s, transform 0.2s; }
+    @keyframes card-in { from { opacity: 0; transform: translateY(10px) scale(0.98); } }
+    .word { display: flex; flex-wrap: wrap; gap: 3px; }
+    .t {
+      display: grid; place-items: center; width: 1.75rem; height: 1.75rem; border-radius: 5px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 46%), var(--tile);
+      color: var(--tint); font-size: 1.05rem; font-weight: 700; line-height: 1; text-transform: uppercase;
+      box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.16), 0 2px 3px rgba(var(--shadow-rgb), 0.3);
+    }
+    .kind { margin: 10px 0 2px; color: var(--muted); font-size: 0.8125rem; }
+    .def { margin: 0; color: var(--soft); font-size: 0.9375rem; text-wrap: pretty; }
+
+    .veil {
+      position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 18px;
+      padding: 24px; text-align: center; background: var(--veil); border-radius: 10px;
+    }
+    .veil[hidden], .btn[hidden] { display: none; }
+    .veil p { margin: 0; font-size: 1.125rem; font-weight: 600; text-wrap: balance; }
+    .btn {
+      border: 0; border-radius: 8px; padding: 12px 22px; cursor: pointer;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 46%), #b83a24;
+      color: #f7ecd3; font: 600 1rem/1 var(--display); letter-spacing: 0.02em;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -2px 0 rgba(0, 0, 0, 0.2), 0 6px 10px -4px rgba(var(--shadow-rgb), 0.55);
+      transition: transform 0.15s var(--ease), filter 0.15s;
+    }
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.07); }
+    .btn:active { transform: translateY(1px); filter: none; }
+    .btn:focus-visible { outline: 3px solid var(--text); outline-offset: 4px; }
+
+    aside { grid-column: 3; justify-self: start; width: 280px; max-width: 100%; display: flex; flex-direction: column; gap: 22px; }
+    h1.game-title { margin: 0; font-size: 1.5rem; font-weight: 650; letter-spacing: -0.01em; }
+
+    .panel { margin: 0; padding: 4px 16px; background: var(--panel); border: 1px solid var(--edge); border-radius: 12px; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; }
+    .row + .row { border-top: 1px solid var(--line); }
+    dt { color: var(--muted); font-size: 0.9375rem; }
+    dd { margin: 0; }
+    #score, #threes { font-size: 1.625rem; font-weight: 650; font-variant-numeric: tabular-nums; }
+    #threes.spent { color: var(--muted); }
+    #next { width: 96px; height: 96px; background: var(--board); border: 1px solid var(--edge); border-radius: 8px; }
+
+    .hint { margin: 0; color: var(--muted); font-size: 0.9375rem; text-wrap: pretty; }
+    .keys { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 0; padding: 0; list-style: none; color: var(--muted); font-size: 0.875rem; }
+    .keys li { display: contents; }
+    kbd {
+      justify-self: start; padding: 1px 7px; background: var(--panel); border: 1px solid var(--edge);
+      border-radius: 5px; color: var(--soft); font: 600 0.8125rem/1.5 var(--display);
+    }
+
+    /* ---------- Aviso para celulares y tablets (puntero táctil) ---------- */
+    .nope {
+      --s: clamp(44px, 14vw, 64px);
+      display: none; position: fixed; inset: 0; z-index: 30;
+      flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--s) * 0.55);
+      padding: 24px; text-align: center; background: var(--bg); color: var(--text);
+    }
+    .nope h1 { margin: 0; }
+    .sorry { display: flex; gap: calc(var(--s) * 0.07); }
+    .nope-msg { margin: 0; font: 600 1.375rem/1.3 var(--display); text-wrap: balance; }
+    .nope-sub { margin: 0; color: var(--muted); font-size: 1rem; text-wrap: balance; }
+    @media (hover: none) and (pointer: coarse) {
+      .nope { display: flex; }
+      .cover, #app, .tools { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tile, .go { animation: none; }
+      .cover.leaving { filter: none; }
+      .card { animation: none; }
+      .card.out, .go, .tool, .btn { transition: none; }
+    }
+    /* Ventana angosta: no cabe la columna izquierda; vuelven las tarjetas al centro del tablero y las columnas se apilan */
+    @media (max-width: 1080px) {
+      main { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; justify-content: center; }
+      .cards { top: 50%; left: 16px; right: 16px; width: auto; transform: translateY(-50%); }
+    }
+    @media (max-width: 720px) { main { flex-direction: column; align-items: center; } aside { width: 360px; } }
+  </style>
+</head>
+<body>
+  <section id="cover" class="cover" aria-label="Portada">
+    <h1 class="title" aria-label="Verbum Tetris">
+      <span class="crossword" aria-hidden="true">
+        <span class="tile terra" style="--r:4;--c:1;--i:0">V<i>4</i></span>
+        <span class="tile cream" style="--r:4;--c:2;--i:1">E<i>1</i></span>
+        <span class="tile sand"  style="--r:4;--c:3;--i:2">R<i>1</i></span>
+        <span class="tile taupe" style="--r:4;--c:4;--i:3">B<i>3</i></span>
+        <span class="tile sage"  style="--r:4;--c:5;--i:4">U<i>1</i></span>
+        <span class="tile clay"  style="--r:4;--c:6;--i:5">M<i>3</i></span>
+        <span class="tile terra" style="--r:1;--c:3;--i:6">T<i>1</i></span>
+        <span class="tile sage"  style="--r:2;--c:3;--i:7">E<i>1</i></span>
+        <span class="tile brown" style="--r:3;--c:3;--i:8">T<i>1</i></span>
+        <span class="tile cream" style="--r:5;--c:3;--i:9">I<i>1</i></span>
+        <span class="tile terra" style="--r:6;--c:3;--i:10">S<i>1</i></span>
+      </span>
+    </h1>
+    <button id="start" class="go" type="button">Comenzar</button>
+  </section>
+
+  <div class="tools">
+    <button id="theme" class="tool" type="button" aria-pressed="false">
+      <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path class="moon" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" />
+      </svg>
+      <span>Dark mode</span>
+    </button>
+    <button id="mute" class="tool icon" type="button" aria-label="Silenciar música" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z" fill="currentColor" />
+        <path class="waves" d="M15.5 9.5a3.5 3.5 0 0 1 0 5M18 7a7 7 0 0 1 0 10" />
+        <path class="off" d="M16 9.5l5 5M21 9.5l-5 5" />
+      </svg>
+    </button>
+  </div>
+
+  <main id="app" inert>
+    <div class="stage">
+      <canvas id="board" role="img" aria-label="Tablero de juego"></canvas>
+      <div id="cards" class="cards" aria-live="polite"></div>
+      <div id="veil" class="veil" role="status">
+        <p id="veil-msg">Cargando diccionario…</p>
+        <button id="again" class="btn" type="button" hidden>Jugar de nuevo</button>
+      </div>
+    </div>
+    <aside>
+      <h1 class="game-title">Verbum Tetris</h1>
+      <dl class="panel">
+        <div class="row"><dt>Puntos</dt><dd id="score">0</dd></div>
+        <div class="row"><dt>Palabras de 3 letras</dt><dd id="threes">5</dd></div>
+        <div class="row"><dt>Siguiente</dt><dd><canvas id="next" role="img" aria-label="Siguiente pieza"></canvas></dd></div>
+      </dl>
+      <p class="hint">Forma palabras de izquierda a derecha o de arriba hacia abajo. Valen desde 4 letras; las de 3 solo mientras te queden. Una de 7 letras o más te regala una.</p>
+      <ul class="keys">
+        <li><kbd>← →</kbd><span>Mover</span></li>
+        <li><kbd>↑</kbd><span>Girar</span></li>
+        <li><kbd>↓</kbd><span>Bajar</span></li>
+        <li><kbd>Espacio</kbd><span>Caída directa</span></li>
+        <li><kbd>Enter</kbd><span>Reiniciar al terminar</span></li>
+      </ul>
+    </aside>
+  </main>
+
+  <section class="nope" aria-labelledby="nope-title">
+    <h1 id="nope-title" aria-label="Sorry">
+      <span class="sorry" aria-hidden="true">
+        <span class="tile terra" style="--i:0">S<i>1</i></span>
+        <span class="tile sand"  style="--i:1">O<i>1</i></span>
+        <span class="tile sage"  style="--i:2">R<i>1</i></span>
+        <span class="tile cream" style="--i:3">R<i>1</i></span>
+        <span class="tile clay"  style="--i:4">Y<i>4</i></span>
+      </span>
+    </h1>
+    <p class="nope-msg">Esto solo es para PC o Laptop.</p>
+    <p class="nope-sub">Vuelve a entrar desde un computador con teclado.</p>
+  </section>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
