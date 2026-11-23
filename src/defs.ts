@@ -1,6 +1,9 @@
 // Las definiciones viven en public/defs/<prefijo>.json (las genera scripts/make-words.mjs, que importa
 // este mismo `shard`). "des-" usa 4 letras porque ese prefijo con todas sus conjugaciones pesa 8 MB; el resto cabe en 3.
-export const shard = (w: string) => w.slice(0, w.startsWith('des') ? 4 : 3).replace(/ñ/g, '_');
+// Windows reserva aux, con, nul y prn como nombres de dispositivo (con cualquier extensión): git ni siquiera puede
+// guardar un archivo así, y son prefijos reales ("auxilio", "con-"), por eso llevan un guion bajo al final.
+export const shard = (w: string) =>
+  w.slice(0, w.startsWith('des') ? 4 : 3).replace(/ñ/g, '_').replace(/^(aux|con|nul|prn)$/, '$1_');
 
 export type Def = { word: string; kind: string; text: string };
 

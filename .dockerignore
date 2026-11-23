@@ -1,0 +1,8 @@
+node_modules
+dist
+.git
+.idea
+.claude
+.impeccable
+# 1.2 GB: no debe viajar en el contexto de construcción
+dic_spa
