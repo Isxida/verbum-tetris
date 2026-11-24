@@ -76,6 +76,7 @@ docker run -p 8080:80 tetris-floro
 
 En Dokploy: Build Type **Dockerfile** y puerto **80** en el dominio.
 
+`nginx.conf` también protege el sitio de escaneos de bots: solo sirve los archivos que existen (`index.html`, `words.txt`, `favicon.svg`, `assets/` y `defs/*.json`) y corta sin responder todo lo demás, acepta solo GET y HEAD, y limita las peticiones por IP. Si algún día publicas otro archivo en `public/`, agrégalo a la lista de `nginx.conf` o quedará bloqueado.
 ## Licencia
 
 Este proyecto se publica bajo [Creative Commons Atribución-CompartirIgual 4.0 Internacional (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/deed.es); el texto completo está en [LICENSE](LICENSE). Puedes copiarlo, modificarlo y compartirlo, incluso con fines comerciales, citando la autoría y manteniendo la misma licencia.
