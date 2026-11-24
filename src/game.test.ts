@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   H, HELP_EVERY, TILE_COLORS, W, SHAPES, canScore, cells, emptyBoard, findWords, hardDrop, helpfulPiece, isVowel, newGame,
-  randomPiece, resolve, rotate, stackHeight,
+  randomPiece, resolve, rotate, stackHeight, unlocked,
 } from './game.ts';
 import type { Board, Shape } from './game.ts';
 
@@ -139,6 +139,48 @@ test('las palabras se leen por letra aunque las celdas lleven color', () => {
   const clear = r.steps.find((s) => s.type === 'clear');
   assert.ok(clear?.type === 'clear');
   assert.deepEqual(clear.cells.map((c) => c.ch), ['s2', 'o5', 'l0']); // al desintegrarse conservan su color
+});
+
+// Consonantes que salen con `words` palabras formadas, tras `n` piezas
+const consonantsAt = (words: number, n: number) => {
+  const out = new Set<string>();
+  for (let i = 0; i < n; i++) for (const ch of randomPiece(undefined, words).letters) if (!isVowel(ch)) out.add(ch);
+  return out;
+};
+
+test('sin palabras formadas solo salen las consonantes comunes', () => {
+  const comunes = new Set('srncdtlmbpg');
+  assert.deepEqual([...consonantsAt(0, 3000)].filter((c) => !comunes.has(c)), []);
+  assert.deepEqual([...consonantsAt(3, 3000)].filter((c) => !comunes.has(c)), []); // h, f y v entran a las 4
+});
+
+test('cada consonante rara se desbloquea en su punto; K y W nunca salen', () => {
+  assert.ok(!unlocked('h', 3) && unlocked('h', 4));
+  assert.ok(!unlocked('z', 9) && unlocked('z', 10));
+  assert.ok(!unlocked('ñ', 15) && unlocked('ñ', 16));
+  assert.ok(!unlocked('x', 23) && unlocked('x', 24));
+  assert.ok(unlocked('a', 0) && unlocked('s', 0));
+  assert.ok(!unlocked('k', 999) && !unlocked('w', 999));
+  const todas = consonantsAt(100, 20000);
+  for (const c of 'hfvzjñyxq') assert.ok(todas.has(c), `${c} nunca salió con todo desbloqueado`);
+  assert.ok(!todas.has('k') && !todas.has('w'));
+});
+
+test('la ayuda no usa letras que aún no se han desbloqueado', () => {
+  const dict = new Set(['zeta', 'mesa']);
+  const b = emptyBoard();
+  b[H - 1][0] = 'a'; // pila "a": 3 letras + "a" forman una palabra de 4
+  assert.equal(helpfulPiece(b, dict, 0, 0).letters.join(''), 'mes'); // la z todavía no puede salir
+  const opciones = new Set<string>();
+  for (let i = 0; i < 60; i++) opciones.add(helpfulPiece(b, dict, 0, 100).letters.join(''));
+  assert.ok(opciones.has('zet')); // con la z desbloqueada sí es una opción
+});
+
+test('el juego cuenta las palabras formadas', () => {
+  const g = newGame();
+  g.piece = { shape: 'I', letters: ['s', 'o', 'l'], r: 0, x: 3, y: 0 };
+  hardDrop(g, new Set(['sol']));
+  assert.equal(g.words, 1);
 });
 
 test('cada 5ª pieza es la ayuda: puede completar una palabra en el tablero', () => {

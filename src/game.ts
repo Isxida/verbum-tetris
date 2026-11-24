@@ -13,9 +13,10 @@ export type Move = { ch: string; x: number; from: number; to: number };
 // Guion de lo que ocurrió al fijar una pieza, para animarlo: cada paso trae el tablero resultante
 export type Step =
   | { type: 'fall'; board: Board; moves: Move[] }
-  | { type: 'clear'; board: Board; cells: { ch: string; x: number; y: number }[]; words: string[] };
+  | { type: 'clear'; board: Board; cells: { ch: string; x: number; y: number }[]; words: string[]; chain: number };
 export type Game = {
-  board: Board; piece: Piece; next: Piece; made: number; score: number; threes: number; steps: Step[]; over: boolean;
+  board: Board; piece: Piece; next: Piece; made: number; score: number; words: number; threes: number; steps: Step[];
+  over: boolean;
 };
 
 // Desplazamientos [dx, dy] de cada letra, por orientación. En I, L y T las 3 primeras letras
@@ -38,19 +39,43 @@ export const SHAPES: Record<Shape, [number, number][][]> = {
   Z: [[[0, 0], [1, 0], [1, 1], [2, 1]], [[1, 0], [1, 1], [0, 1], [0, 2]]],
 };
 
-// shortcut: pesos a ojo (español aproximado); afinar con la frecuencia real de letras del diccionario
-const CONS = 'rrrrrssssnnnndddlllttcccmmppbbgvfhqzjñxy';
+// Consonantes: [letra, peso final, palabras formadas desde las que empiezan a salir]. Los pesos son el % de cada letra
+// en el diccionario (medido sobre public/words.txt), con piso de 0.5 para las muy raras (si no, la X casi nunca saldría).
+// K y W no están: solo aparecen en 1,020 y 288 palabras.
+// shortcut: los puntos de entrada (4, 10, 16 y 24 palabras) son una primera apuesta; afinarlos jugando.
+const CONSONANTS: [string, number, number][] = [
+  ['s', 9.7, 0], ['r', 8.8, 0], ['n', 6.1, 0], ['c', 4.4, 0], ['t', 4, 0], ['d', 3.8, 0], ['l', 3.5, 0], ['m', 3.5, 0],
+  ['b', 2.3, 0], ['p', 2, 0], ['g', 1.4, 0],
+  ['h', 0.9, 4], ['f', 0.9, 4], ['v', 0.8, 4],
+  ['z', 0.8, 10], ['j', 0.6, 10],
+  ['ñ', 0.5, 16], ['y', 0.5, 16],
+  ['x', 0.5, 24], ['q', 0.5, 24],
+];
+const RAMP = 6; // palabras que tarda cada consonante en pasar de 0 a su peso final
+const ramp = (from: number, words: number) => (from === 0 ? 1 : Math.min(1, Math.max(0, (words - from + 1) / RAMP)));
 const VOWS = 'eeeeeaaaaaooooiiiuu';
 const SHAPE_POOL: Shape[] = ['I', 'I', 'I', 'I', 'L', 'L', 'T', 'T', 'S', 'Z'];
 const pick = <T>(a: ArrayLike<T>): T => a[Math.floor(Math.random() * a.length)];
 const shuffled = <T>(a: T[]): T[] => a.map((v) => [Math.random(), v] as const).sort((p, q) => p[0] - q[0]).map(([, v]) => v);
 export const isVowel = (ch: string) => 'aeiouáéíóúü'.includes(ch);
 
+// ¿Puede salir esta letra cuando el jugador lleva `words` palabras formadas? Las vocales, siempre.
+export const unlocked = (ch: string, words: number) =>
+  isVowel(ch) || CONSONANTS.some(([c, , from]) => c === ch && ramp(from, words) > 0);
+
+// Consonante al azar con peso proporcional: las raras entran poco a poco (ver `ramp`)
+function consonant(words: number) {
+  const w = CONSONANTS.map(([, base, from]) => base * ramp(from, words));
+  let r = Math.random() * w.reduce((a, b) => a + b, 0);
+  return CONSONANTS[Math.max(0, w.findIndex((x) => (r -= x) < 0))][0];
+}
+
 // Aparece ya en su posición de salida. Las letras alternan: CVC(+V) o VCV(+C); en T la 4ª alterna con la del centro.
-export function randomPiece(shape: Shape = pick(SHAPE_POOL)): Piece {
+// `words` = palabras formadas hasta ahora: decide qué consonantes ya pueden salir.
+export function randomPiece(shape: Shape = pick(SHAPE_POOL), words = 0): Piece {
   const vowel = Math.random() < 0.35 ? [true, false, true] : [false, true, false];
   if (shape !== 'I') vowel.push(!vowel[shape === 'T' ? 1 : 2]);
-  const letters = vowel.map((v) => pick(v ? VOWS : CONS));
+  const letters = vowel.map((v) => (v ? pick(VOWS) : consonant(words)));
   const tint = letters.map(() => Math.floor(Math.random() * TILE_COLORS)); // el color es puro azar, no depende de consonante o vocal
   return { shape, letters, tint, r: 0, x: Math.floor((W - 3) / 2), y: 0 };
 }
@@ -155,7 +180,7 @@ export function resolve(b: Board, dict: Set<string>, threes: number) {
     for (const { x, y } of gone.values()) b[y][x] = '';
     threes = Math.max(0, threes - hits.filter((h) => h.word.length === 3).length)
       + hits.filter((h) => h.word.length >= BONUS_LEN).length;
-    steps.push({ type: 'clear', board: copy(b), cells: [...gone.values()], words: hits.map((h) => h.word) });
+    steps.push({ type: 'clear', board: copy(b), cells: [...gone.values()], words: hits.map((h) => h.word), chain });
   }
 }
 
@@ -184,7 +209,7 @@ function wordsOfLength(dict: Set<string>, n: number) {
 }
 
 // 3 letras que, caídas en vertical sobre una columna, forman una palabra de 4 a 6 letras con las k de arriba de esa pila
-function columnPiece(b: Board, dict: Set<string>, threes: number): Piece | null {
+function columnPiece(b: Board, dict: Set<string>, threes: number, words: number): Piece | null {
   const alternates = (s: string) => isVowel(s[0]) !== isVowel(s[1]) && isVowel(s[1]) !== isVowel(s[2]);
   for (const x of shuffled([...Array(W).keys()])) {
     const stack = b.map((row) => row[x]).filter(Boolean).join(''); // arriba→abajo; la gravedad la deja compacta
@@ -192,7 +217,9 @@ function columnPiece(b: Board, dict: Set<string>, threes: number): Piece | null 
     for (const k of shuffled([1, 2, 3])) {
       if (stack.length < k) continue;
       const tail = stack.slice(0, k);
-      const options = wordsOfLength(dict, 3 + k).filter((w) => w.endsWith(tail) && alternates(w));
+      const options = wordsOfLength(dict, 3 + k).filter(
+        (w) => w.endsWith(tail) && alternates(w) && [...w.slice(0, 3)].every((ch) => unlocked(ch, words)), // solo letras ya desbloqueadas
+      );
       for (const w of shuffled(options).slice(0, 5)) {
         const p = { ...randomPiece('I'), letters: [...w.slice(0, 3)] };
         if (canScore(b, p, dict, threes)) return p;
@@ -203,19 +230,19 @@ function columnPiece(b: Board, dict: Set<string>, threes: number): Piece | null 
 }
 
 // Ayuda oculta: una pieza que de verdad forma palabra en el tablero actual
-export function helpfulPiece(b: Board, dict: Set<string>, threes: number): Piece {
-  const p = columnPiece(b, dict, threes);
+export function helpfulPiece(b: Board, dict: Set<string>, threes: number, words = 0): Piece {
+  const p = columnPiece(b, dict, threes, words);
   if (p) return p;
   if (threes > 0) // sin pila útil: 3 letras que ya son palabra; en vertical caen en cualquier columna libre
     for (let i = 0; i < 5000; i++) {
-      const q = randomPiece('I');
+      const q = randomPiece('I', words);
       if (dict.has(q.letters.join(''))) return q;
     }
-  return randomPiece();
+  return randomPiece(undefined, words);
 }
 
 export const newGame = (): Game => ({
-  board: emptyBoard(), piece: randomPiece(), next: randomPiece(), made: 2, score: 0, threes: START_THREES,
+  board: emptyBoard(), piece: randomPiece(), next: randomPiece(), made: 2, score: 0, words: 0, threes: START_THREES,
   steps: [], over: false,
 });
 
@@ -223,11 +250,12 @@ function land(g: Game, dict: Set<string>) {
   for (const { ch, x, y } of cells(g.piece)) g.board[y][x] = ch;
   const r = resolve(g.board, dict, g.threes);
   g.score += r.points;
+  g.words += r.words.length;
   g.threes = r.threes;
   g.steps = r.steps;
   g.piece = g.next;
   g.made++;
-  g.next = g.made % HELP_EVERY === 0 ? helpfulPiece(g.board, dict, g.threes) : randomPiece();
+  g.next = g.made % HELP_EVERY === 0 ? helpfulPiece(g.board, dict, g.threes, g.words) : randomPiece(undefined, g.words);
   if (!fits(g.board, g.piece)) g.over = true;
 }
 

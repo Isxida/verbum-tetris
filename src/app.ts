@@ -9,6 +9,7 @@ const NEXT = 96; // lado del cuadro de "Siguiente"
 const MAX_CARDS = 2;
 const INTRO_MS = 5000; // portada → tablero: difuminado de la portada y fundido de la música
 const TENSION_ROWS = 5; // con la pila a esta altura suena Psycho
+const GAME_OVER_MS = 2200; // se ve "Fin del juego" y luego se vuelve a la portada
 const FALL_MS_PER_ROW = 110; // caída lenta de lo que cuelga, para poder seguirla con la vista
 const DISSOLVE_MS = 750;
 const PX = 6; // lado de cada "píxel" del desintegrado (divide a S)
@@ -146,12 +147,10 @@ function hud() {
   }
 }
 
-const veil = $('veil'), again = $<HTMLButtonElement>('again');
-function showVeil(msg: string, restart = false) {
+const veil = $('veil');
+function showVeil(msg: string) {
   veil.hidden = !msg;
   $('veil-msg').textContent = msg;
-  again.hidden = !restart;
-  if (restart) again.focus();
 }
 
 async function wordCard(w: string) {
@@ -199,8 +198,20 @@ const duration = (s: Step) =>
   REDUCED ? 1 : s.type === 'clear' ? DISSOLVE_MS
     : Math.min(1000, Math.max(220, Math.max(...s.moves.map((m) => m.to - m.from)) * FALL_MS_PER_ROW));
 
+// Reacción en cadena (como en Puyo Puyo): desde la segunda tanda, ficha roja con el multiplicador sobre el tablero
+function showChain(n: number) {
+  document.querySelectorAll('.chain').forEach((e) => e.remove()); // una cadena larga reemplaza a la anterior
+  const el = document.createElement('div');
+  el.className = 'chain';
+  el.setAttribute('aria-hidden', 'true'); // el puntaje ya refleja el multiplicador
+  el.textContent = `x${n}`;
+  document.querySelector('.stage')!.append(el);
+  setTimeout(() => el.remove(), 1100);
+}
+
 function begin(step: Step) {
   playing!.parts = step.type === 'clear' ? particles(step.cells) : [];
+  if (step.type === 'clear' && step.chain >= 2) showChain(step.chain);
 }
 
 function frame(now: number) {
@@ -230,23 +241,30 @@ function render() {
     return;
   }
   scene();
-  if (g.over && veil.hidden) showVeil('Fin del juego', true);
+  if (g.over && veil.hidden) {
+    showVeil('Fin del juego');
+    setTimeout(toTitle, GAME_OVER_MS);
+  }
 }
 
-function restart() {
+// Perder devuelve a la portada: partida nueva detrás, la portada otra vez visible y la música del título
+function toTitle() {
+  started = false;
+  tense = false;
   g = newGame();
   $('cards').replaceChildren();
   showVeil('');
   render();
+  app.inert = true;
+  cover.classList.remove('leaving');
+  cover.hidden = false; // al mostrarse de nuevo, las fichas vuelven a caer
+  startBtn.disabled = false;
+  startBtn.focus({ preventScroll: true });
+  music.toTitle();
 }
-again.addEventListener('click', () => !playing && restart());
 
 addEventListener('keydown', (e) => {
-  if (!dict || !started || playing) return;
-  if (g.over) {
-    if (e.key === 'Enter') { e.preventDefault(); restart(); } // preventDefault: evita el doble reinicio por el clic del botón enfocado
-    return;
-  }
+  if (!dict || !started || playing || g.over) return;
   if (e.key === 'ArrowLeft') g.piece = move(g.board, g.piece, -1, 0);
   else if (e.key === 'ArrowRight') g.piece = move(g.board, g.piece, 1, 0);
   else if (e.key === 'ArrowDown') tick(g, dict);
@@ -258,8 +276,10 @@ addEventListener('keydown', (e) => {
   render();
 });
 
-// --- Portada: Comenzar difumina la portada y cruza la música de Going_Back a Gees en INTRO_MS; recién entonces se juega ---
+// --- Portada: Comenzar difumina la portada y cruza la música de Going_Back a Gees en INTRO_MS; luego cae el cartel
+// de cómo se juega y la partida empieza con "Entendido, go!" ---
 const cover = $('cover'), startBtn = $<HTMLButtonElement>('start'), app = $('app');
+const howto = $('howto'), goBtn = $<HTMLButtonElement>('go');
 const mute = $<HTMLButtonElement>('mute'), themeBtn = $<HTMLButtonElement>('theme');
 music.intro();
 startBtn.focus({ preventScroll: true }); // el juego es de teclado: Enter o Espacio empiezan
@@ -269,9 +289,14 @@ startBtn.addEventListener('click', () => {
   music.toGame(INTRO_MS);
   setTimeout(() => {
     cover.hidden = true;
-    app.inert = false;
-    started = true;
+    howto.hidden = false; // el cartel cae desde arriba; el tablero sigue inerte y quieto
+    goBtn.focus();
   }, INTRO_MS);
+});
+goBtn.addEventListener('click', () => {
+  howto.hidden = true;
+  app.inert = false;
+  started = true;
 });
 mute.addEventListener('click', () => {
   const muted = music.toggleMute();

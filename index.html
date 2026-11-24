@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Verbum Tetris</title>
+  <title>Tetris Floro</title>
   <style>
     /* Un solo mundo: mesa crema y fichas de madera. El tema oscuro cambia solo el fondo y lo que se lee sobre él. */
     :root {
@@ -81,7 +81,7 @@
     .cover[hidden] { display: none; }
     .cover.leaving { opacity: 0; filter: blur(16px); pointer-events: none; transition: opacity 5s ease-in-out, filter 5s ease-in-out; }
     .title { margin: 0; }
-    .crossword { display: grid; grid-template: repeat(6, var(--s)) / repeat(6, var(--s)); gap: var(--gap); }
+    .crossword { display: grid; grid-template: repeat(5, var(--s)) / repeat(6, var(--s)); gap: var(--gap); }
 
     .tile {
       position: relative; display: grid; place-items: center; width: var(--s); height: var(--s);
@@ -179,7 +179,7 @@
       position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 18px;
       padding: 24px; text-align: center; background: var(--veil); border-radius: 10px;
     }
-    .veil[hidden], .btn[hidden] { display: none; }
+    .veil[hidden] { display: none; }
     .veil p { margin: 0; font-size: 1.125rem; font-weight: 600; text-wrap: balance; }
     .btn {
       border: 0; border-radius: 8px; padding: 12px 22px; cursor: pointer;
@@ -212,6 +212,45 @@
       border-radius: 5px; color: var(--soft); font: 600 0.8125rem/1.5 var(--display);
     }
 
+    /* Reacción en cadena: el multiplicador (x2, x3…) aparece arriba del tablero mientras se animan las tandas */
+    .chain {
+      position: absolute; top: 14%; left: 50%; z-index: 2; pointer-events: none;
+      padding: 10px 22px; border-radius: 12px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 46%), #b83a24;
+      color: #f7ecd3; font: 700 2.25rem/1 var(--display); letter-spacing: 0.02em;
+      box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4), inset 0 -3px 0 rgba(0, 0, 0, 0.2), 0 12px 22px -8px rgba(var(--shadow-rgb), 0.6);
+      animation: chain-pop 1.1s var(--ease) both;
+    }
+    @keyframes chain-pop {
+      0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+      18% { opacity: 1; transform: translateX(-50%) scale(1.12); }
+      30% { transform: translateX(-50%) scale(1); }
+      80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-18px); }
+    }
+
+    /* Crédito del Wikcionario: lo exige su licencia (CC BY-SA) donde se muestran sus definiciones */
+    .credit { margin: 0; color: var(--muted); font-size: 0.875rem; text-wrap: pretty; }
+    .credit a { color: var(--soft); text-underline-offset: 2px; white-space: nowrap; } /* "CC BY-SA 4.0" no se parte */
+    .credit a:hover { color: var(--text); }
+    .credit a:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; border-radius: 2px; }
+
+    /* ---------- Cartel de cómo se juega: cae desde arriba al pasar la portada y la partida espera su botón ---------- */
+    .howto { position: fixed; inset: 0; z-index: 15; display: grid; place-items: center; padding: 20px; background: rgba(var(--shadow-rgb), 0.45); animation: scrim-in 0.4s ease both; }
+    .howto[hidden] { display: none; }
+    .howto-card {
+      width: min(100%, 440px); padding: 26px 26px 24px; text-align: center;
+      background: var(--panel); border: 1px solid var(--edge); border-radius: 16px;
+      box-shadow: 0 24px 60px rgba(var(--shadow-rgb), 0.5); animation: drop-in 0.9s var(--ease) both;
+    }
+    .howto-card h2 { margin: 0 0 8px; font-size: 1.5rem; font-weight: 650; letter-spacing: -0.01em; }
+    .howto-card p { margin: 0; color: var(--soft); font-size: 1rem; text-wrap: balance; }
+    .example { --s: 46px; --gap: calc(var(--s) * 0.07); display: grid; grid-template: repeat(3, var(--s)) / repeat(4, var(--s)); gap: var(--gap); justify-content: center; margin: 20px 0; }
+    .example .tile { animation-delay: calc(800ms + var(--i) * 90ms); } /* las fichas caen cuando el cartel ya se asentó */
+    .howto .btn { margin-top: 22px; padding: 14px 28px; font-size: 1.0625rem; }
+    @keyframes scrim-in { from { opacity: 0; } }
+    @keyframes drop-in { from { opacity: 0; transform: translateY(-70vh); } }
+
     /* ---------- Aviso para celulares y tablets (puntero táctil) ---------- */
     .nope {
       --s: clamp(44px, 14vw, 64px);
@@ -229,7 +268,8 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .tile, .go { animation: none; }
+      .tile, .go, .howto, .howto-card, .chain { animation: none; }
+      .chain { transform: translateX(-50%); }
       .cover.leaving { filter: none; }
       .card { animation: none; }
       .card.out, .go, .tool, .btn { transition: none; }
@@ -244,19 +284,18 @@
 </head>
 <body>
   <section id="cover" class="cover" aria-label="Portada">
-    <h1 class="title" aria-label="Verbum Tetris">
+    <h1 class="title" aria-label="Tetris Floro">
       <span class="crossword" aria-hidden="true">
-        <span class="tile terra" style="--r:4;--c:1;--i:0">V<i>4</i></span>
+        <span class="tile terra" style="--r:4;--c:1;--i:0">T<i>1</i></span>
         <span class="tile cream" style="--r:4;--c:2;--i:1">E<i>1</i></span>
-        <span class="tile sand"  style="--r:4;--c:3;--i:2">R<i>1</i></span>
-        <span class="tile taupe" style="--r:4;--c:4;--i:3">B<i>3</i></span>
-        <span class="tile sage"  style="--r:4;--c:5;--i:4">U<i>1</i></span>
-        <span class="tile clay"  style="--r:4;--c:6;--i:5">M<i>3</i></span>
-        <span class="tile terra" style="--r:1;--c:3;--i:6">T<i>1</i></span>
-        <span class="tile sage"  style="--r:2;--c:3;--i:7">E<i>1</i></span>
-        <span class="tile brown" style="--r:3;--c:3;--i:8">T<i>1</i></span>
-        <span class="tile cream" style="--r:5;--c:3;--i:9">I<i>1</i></span>
-        <span class="tile terra" style="--r:6;--c:3;--i:10">S<i>1</i></span>
+        <span class="tile brown" style="--r:4;--c:3;--i:2">T<i>1</i></span>
+        <span class="tile sand"  style="--r:4;--c:4;--i:3">R<i>1</i></span>
+        <span class="tile sage"  style="--r:4;--c:5;--i:4">I<i>1</i></span>
+        <span class="tile clay"  style="--r:4;--c:6;--i:5">S<i>1</i></span>
+        <span class="tile taupe" style="--r:1;--c:4;--i:6">F<i>4</i></span>
+        <span class="tile cream" style="--r:2;--c:4;--i:7">L<i>1</i></span>
+        <span class="tile terra" style="--r:3;--c:4;--i:8">O<i>1</i></span>
+        <span class="tile sage"  style="--r:5;--c:4;--i:9">O<i>1</i></span>
       </span>
     </h1>
     <button id="start" class="go" type="button">Comenzar</button>
@@ -284,11 +323,10 @@
       <div id="cards" class="cards" aria-live="polite"></div>
       <div id="veil" class="veil" role="status">
         <p id="veil-msg">Cargando diccionario…</p>
-        <button id="again" class="btn" type="button" hidden>Jugar de nuevo</button>
       </div>
     </div>
     <aside>
-      <h1 class="game-title">Verbum Tetris</h1>
+      <h1 class="game-title">Tetris Floro</h1>
       <dl class="panel">
         <div class="row"><dt>Puntos</dt><dd id="score">0</dd></div>
         <div class="row"><dt>Palabras de 3 letras</dt><dd id="threes">5</dd></div>
@@ -300,10 +338,27 @@
         <li><kbd>↑</kbd><span>Girar</span></li>
         <li><kbd>↓</kbd><span>Bajar</span></li>
         <li><kbd>Espacio</kbd><span>Caída directa</span></li>
-        <li><kbd>Enter</kbd><span>Reiniciar al terminar</span></li>
       </ul>
+      <p class="credit">Definiciones del <a href="https://es.wiktionary.org/" target="_blank" rel="noopener noreferrer">Wikcionario</a>, bajo licencia <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>.</p>
     </aside>
   </main>
+
+  <div id="howto" class="howto" role="dialog" aria-modal="true" aria-labelledby="howto-title" hidden>
+    <div class="howto-card">
+      <h2 id="howto-title">Así se juega</h2>
+      <p>Forma palabras de izquierda a derecha o de arriba hacia abajo, como CASA y SOL.</p>
+      <div class="example" aria-hidden="true">
+        <span class="tile terra" style="--r:1;--c:1;--i:0">C<i>3</i></span>
+        <span class="tile cream" style="--r:1;--c:2;--i:1">A<i>1</i></span>
+        <span class="tile sand"  style="--r:1;--c:3;--i:2">S<i>1</i></span>
+        <span class="tile sage"  style="--r:1;--c:4;--i:3">A<i>1</i></span>
+        <span class="tile clay"  style="--r:2;--c:3;--i:4">O<i>1</i></span>
+        <span class="tile brown" style="--r:3;--c:3;--i:5">L<i>1</i></span>
+      </div>
+      <p>Tienes 5 oportunidades con palabras de 3 letras. Después, solo valen las de 4 letras o más.</p>
+      <button id="go" class="btn" type="button">Entendido, go!</button>
+    </div>
+  </div>
 
   <section class="nope" aria-labelledby="nope-title">
     <h1 id="nope-title" aria-label="Sorry">

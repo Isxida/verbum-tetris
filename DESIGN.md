@@ -1,5 +1,5 @@
 ---
-name: Verbum Tetris
+name: Tetris Floro
 description: Spanish word-Tetris played on a cream tabletop with bevelled wooden letter tiles.
 colors:
   ground: "#efe3c6"
@@ -113,13 +113,13 @@ components:
     padding: "12px 14px 14px"
 ---
 
-# Design System: Verbum Tetris
+# Design System: Tetris Floro
 
 ## Overview
 
 **Creative North Star: "The Letter Tabletop"**
 
-One world: a warm cream tabletop with bevelled wooden letter tiles in the manner of a Scrabble specimen poster, recreated under its own title. Everything that moves or can be read is either a tile or sits on the table beside one. The cover spells VERBUM TETRIS as a crossword of tiles that settle in one by one; the game then reuses the same tile as the falling piece, the cleared-word card and the phone notice.
+One world: a warm cream tabletop with bevelled wooden letter tiles in the manner of a Scrabble specimen poster, recreated under its own title. Everything that moves or can be read is either a tile or sits on the table beside one. The cover spells TETRIS across, crossing FLORO down on a shared R, as a crossword of tiles (5 rows by 6 columns) that settle in one by one; the game then reuses the same tile as the falling piece, the cleared-word card and the phone notice.
 
 Density is calm. The board is the one large object, with a single narrow side panel; nothing competes with the tiles. Colour comes from the tiles and one red action; the table itself is neutral and warm, never white or black.
 
@@ -137,7 +137,7 @@ Two themes share the world. Light is the cream table. Dark is the same table at 
 Earth and wood on a cream ground, with one red accent. Hex is the source of truth in the frontmatter.
 
 ### Primary
-- **Blank-Tile Red** (blank-red): the primary action only (Comenzar, Jugar de nuevo), like the red blank tile of the reference. Ink is Tile Cream Ink-light (blank-red-ink).
+- **Blank-Tile Red** (blank-red): the primary action only (Comenzar on the cover, Entendido, go! in the how-to dialog), like the red blank tile of the reference. Ink is Tile Cream Ink-light (blank-red-ink).
 
 ### Secondary (the seven letter tiles, order matches TILE_COLORS = 7 in game.ts, CSS --t0 to --t6)
 - **Terracotta** (tile-terracotta), **Brown** (tile-brown): dark tiles, light ink (#f7ecd3).
@@ -176,7 +176,7 @@ Earth and wood on a cream ground, with one red accent. Hex is the source of trut
 
 ## Layout
 
-The page is a centred grid. On wide windows `main` is a three-column grid (`minmax(0,1fr) auto minmax(0,1fr)`, gap 28px, padding 20px, max-width 1400px): a left column for cleared-word cards, the board centred, and a 280px side column on the right (gap 22px) holding title, panel, hint and key legend. At 1080px and narrower `main` becomes a centred wrapping flex row and the word card returns to the centre of the board. At 720px and narrower everything stacks in one column with the side column at 360px. The cover is a fixed full-screen layer with the crossword (6x6 grid, gap 7% of tile side) above the action, gap 0.7 of tile side. Tools are fixed top right (16px inset, 10px gap). Touch devices (hover: none and pointer: coarse) get only the tile-spelled notice; the game, cover and tools are hidden.
+The page is a centred grid. On wide windows `main` is a three-column grid (`minmax(0,1fr) auto minmax(0,1fr)`, gap 28px, padding 20px, max-width 1400px): a left column for cleared-word cards, the board centred, and a 280px side column on the right (gap 22px) holding title, panel, hint and key legend. At 1080px and narrower `main` becomes a centred wrapping flex row and the word card returns to the centre of the board. At 720px and narrower everything stacks in one column with the side column at 360px. The cover is a fixed full-screen layer with the crossword (5 rows by 6 columns, gap 7% of tile side) above the action, gap 0.7 of tile side. Tools are fixed top right (16px inset, 10px gap). Touch devices (hover: none and pointer: coarse) get only the tile-spelled notice; the game, cover and tools are hidden.
 
 ## Elevation & Depth
 
@@ -185,7 +185,7 @@ Depth is physical and small: things are objects lying on a table. Tiles carry a 
 ### Shadow Vocabulary
 - **Tile bevel + contact** (`inset 0 0.03s 0 rgba(255,255,255,.45), inset 0 -0.05s 0 rgba(0,0,0,.16), 0 0.12s 0.14s -0.06s rgba(shadow,.5), 0 1px 2px rgba(shadow,.3)`, s = tile side): cover tiles and the red button. A 180deg white gradient (22% to 0 at 46%) sits over the tile colour.
 - **Small tile** (`inset 0 -2px 0 rgba(0,0,0,.16), 0 2px 3px rgba(shadow,.3)`): word tiles in cards.
-- **Control** (`inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 0 rgba(0,0,0,.14), 0 6px 10px -4px rgba(shadow,.5)`): tool tiles and the in-game button.
+- **Control** (`inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 0 rgba(0,0,0,.14), 0 6px 10px -4px rgba(shadow,.5)`): tool tiles and the how-to button.
 - **Pressed tool** (`inset 0 2px 4px rgba(0,0,0,.28), 0 1px 2px rgba(shadow,.3)`): aria-pressed state.
 - **Card** (`0 10px 28px rgba(shadow,.35)`): word card over the board.
 
@@ -216,7 +216,10 @@ Panel and card: panel fill, 1px edge border, 12px radius. The word card sits in 
 Drawn in `tile()` in app.ts with the same bevel as the CSS tiles: fill from the CSS custom properties --t0 to --t6 with ink from --tN-ink, a white sheen over the top 46% (24% to 0), a darker bottom edge (rgba(0,0,0,.16), last 7%), radius 15% of the tile, and letters in Jost 700 at 0.6 of the tile side. Settled tiles carry a 1px hairline edge (rgba of --shadow-rgb at 0.3) and a soft shadow (blur 0.14, offset 0.08 of the tile). The falling piece swaps the hairline for an ink outline (--hot-outline, max(1.5px, size/16)) and a bigger shadow (blur 0.24, offset 0.14, alpha 0.55).
 
 ### Veil
-Translucent ground-colour sheet over the board (90%) with a 1.125rem 600 message and the primary button.
+Translucent ground-colour sheet over the board (90%) with a 1.125rem 600 message. On losing it shows "Fin del juego" for 2.2s with no button, then the game returns to the cover with a fresh game and the cover tiles replay their entrance. There is no restart button or key.
+
+### How-to Dialog
+A modal sheet (role dialog, aria-modal) shown after the cover's 5s dissolve, over a scrim of rgba(shadow-rgb, .45) at z-index 15. The card is the panel fill with a 1px edge border, 16px radius, max 440px, centred text, a 1.5rem 650 title and 1rem soft copy (the 5 three-letter chances, then words of 4+ letters). It drops in from above (`drop-in` 0.9s, the expo-out ease, from translateY(-70vh)). Inside, an example mini crossword of 46px tiles (CASA across, SOL down, sharing the S) uses the same tile classes and palette and settles after an 800ms delay. It ends in the primary red tile button, "Entendido, go!" (14px 28px, 1.0625rem). The board stays inert until that button is pressed. With reduced motion, the scrim, card and tile animations are off.
 
 ### Phone Notice
 The cover's tile word, "SORRY", spelled in tiles at 44 to 64px, over the message in 1.375rem 600 and a muted subline.

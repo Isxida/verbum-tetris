@@ -12,7 +12,7 @@ Public visitors on the web, on a desktop or laptop with a keyboard (confirmed by
 
 ## Product Purpose
 
-Verbum Tetris is a Tetris whose falling pieces are letter tiles. Players stack them to spell real Spanish words; spelled words disintegrate and the player sees the word with its dictionary definition. Success is a player who keeps playing and reads the definitions.
+Tetris Floro is a Tetris whose falling pieces are letter tiles. Players stack them to spell real Spanish words; spelled words disintegrate and the player sees the word with its dictionary definition. Success is a player who keeps playing and reads the definitions.
 
 ## Positioning
 
@@ -27,12 +27,15 @@ Played in a desktop browser with the keyboard. Music plays (browsers block autop
 - Words read left to right or top to bottom. Minimum 4 letters; 3-letter words only while a counter of 5 lasts, and a word of 7 letters or more gives one back.
 - Hidden mechanic: every 5th piece is an assist that completes a word. The player is never told about it; it must read as part of the game's logic.
 - Cleared letters make the ones above fall (cell gravity), with chain reactions.
-- Music: three tracks in `mumumusic/` (Going_Back for the title, Gees in play, Psycho when the stack reaches 5 rows, back to Gees if it drops below 5).
+- Rare consonants phase in as the player forms words, never all at once: H F V from 4 words, Z J from 10, Ñ Y from 16, X Q from 24, each fading in over 6 words; K and W never appear. Weights follow each letter's share in the dictionary. A random-play simulation forms about 0.4 words per piece, so these thresholds are a first bet to tune by playing.
+- Music: three tracks in `mumumusic/` (Going_Back for the title, Gees in play, Psycho when the stack reaches 5 rows, entering at 0:10 of the track, back to Gees if it drops below 5).
+- Flow: the title screen's "Comenzar" fades into the board, then a how-to card (an example, the 5 three-letter chances, then 4 letters or more) pauses play until "Entendido, go!". Losing returns the player to the title screen.
+- License: CC BY-SA 4.0 for the project (the share-alike of the Wiktionary-derived dictionary and definitions requires it). The music tracks and the Jost font keep their own licenses and are not covered by it.
 - Undecided: licensing and credits of the music tracks before public release; touch controls.
 
 ## Brand Commitments
 
-- Name: Verbum Tetris. UI language: Spanish.
+- Name: Tetris Floro (renamed from Verbum Tetris; the repository and package keep the slug `verbum-tetris`). UI language: Spanish.
 - The title screen recreates the look of a reference image the owner supplied (a Scrabble-style specimen poster: wooden letter tiles on cream, crossword layout). The Scrabble name and that image's own text are not used.
 
 ## Evidence on Hand

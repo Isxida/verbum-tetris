@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedAt": "2026-11-23T00:00:00Z",
-  "title": "Design System: Verbum Tetris",
+  "title": "Design System: Tetris Floro",
   "extensions": {
     "colorMeta": {
       "blank-red": {
@@ -191,7 +191,7 @@
       {
         "name": "control",
         "value": "inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 0 rgba(0,0,0,.14), 0 6px 10px -4px rgba(var(--shadow-rgb),.5)",
-        "purpose": "Tool tiles and in-game button."
+        "purpose": "Tool tiles and the how-to button."
       },
       {
         "name": "pressed",
@@ -219,6 +219,11 @@
         "name": "cover-dissolve",
         "value": "5s ease-in-out, opacity to 0 and blur 16px",
         "purpose": "Cover leaving."
+      },
+      {
+        "name": "drop-in",
+        "value": "0.9s expo-out ease, from translateY(-70vh)",
+        "purpose": "How-to card entrance."
       }
     ],
     "breakpoints": [
@@ -249,8 +254,8 @@
       "name": "Blank-Tile Button",
       "kind": "button",
       "refersTo": "button-blank",
-      "description": "The primary action, a red blank tile.",
-      "html": "<button class=\"ds-btn\" type=\"button\">Jugar de nuevo</button>",
+      "description": "The primary action, a red blank tile (cover Comenzar; Entendido, go! in the how-to dialog).",
+      "html": "<button class=\"ds-btn\" type=\"button\">Entendido, go!</button>",
       "css": ".ds-btn { border: 0; border-radius: 8px; padding: 12px 22px; cursor: pointer; background: linear-gradient(180deg, rgba(255,255,255,0.2), rgba(255,255,255,0) 46%), #b83a24; color: #f7ecd3; font: 600 1rem/1 'Jost Variable', 'Jost', system-ui, sans-serif; letter-spacing: 0.02em; box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -2px 0 rgba(0,0,0,0.2), 0 6px 10px -4px rgba(74,42,22,0.55); transition: transform 0.15s cubic-bezier(0.16,1,0.3,1), filter 0.15s; } .ds-btn:hover { transform: translateY(-1px); filter: brightness(1.07); } .ds-btn:active { transform: translateY(1px); filter: none; } .ds-btn:focus-visible { outline: 3px solid #2e1d14; outline-offset: 4px; }"
     },
     {
@@ -284,11 +289,19 @@
       "description": "Canvas tile drawn in app.ts: palette from --t0..--t6, top sheen, darker bottom edge, 1px hairline edge (shadow-rgb at .3) when settled; falling piece has an ink outline (--hot-outline) and a bigger shadow; letter Jost 700 at 0.6 of the side.",
       "html": "<span class=\"ds-tile\">E</span>",
       "css": ".ds-tile { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 7px; background: linear-gradient(180deg, rgba(255,255,255,0.24), rgba(255,255,255,0) 46%), #efe0bd; color: #2e1d14; font: 700 29px/1 'Jost Variable', system-ui, sans-serif; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(74,42,22,0.3), 0 4px 7px rgba(74,42,22,0.4); }"
+    },
+    {
+      "name": "How-to Dialog",
+      "kind": "custom",
+      "refersTo": "card",
+      "description": "Modal how-to (role dialog, aria-modal) after the cover dissolve: card drops in from above, example crossword CASA x SOL settles after 800ms, red blank-tile button; animations off under reduced motion; board inert until dismissed.",
+      "html": "<div class=\"ds-howto\"><div class=\"ds-howto-card\"><h2>Así se juega</h2><p>Forma palabras de 4 letras o más.</p><button class=\"ds-btn\" type=\"button\">Entendido, go!</button></div></div>",
+      "css": ".ds-howto { display: grid; place-items: center; padding: 20px; background: rgba(74,42,22,0.45); } .ds-howto-card { width: 100%; max-width: 440px; padding: 26px 26px 24px; text-align: center; background: #f8f0dc; border: 1px solid #d2c29d; border-radius: 16px; box-shadow: 0 24px 60px rgba(74,42,22,0.5); color: #2e1d14; font-family: 'Jost Variable', system-ui, sans-serif; } .ds-howto-card h2 { margin: 0 0 8px; font-size: 1.5rem; font-weight: 650; letter-spacing: -0.01em; } .ds-howto-card p { margin: 0; color: #4a362a; } .ds-howto .ds-btn { margin-top: 22px; padding: 14px 28px; font-size: 1.0625rem; border: 0; border-radius: 8px; background: #b83a24; color: #f7ecd3; font-weight: 600; cursor: pointer; }"
     }
   ],
   "narrative": {
     "northStar": "The Letter Tabletop",
-    "overview": "One world: a warm cream tabletop with bevelled wooden letter tiles in the manner of a Scrabble specimen poster, recreated under its own title. Everything that moves or can be read is either a tile or sits on the table beside one. The cover spells VERBUM TETRIS as a crossword of tiles that settle in one by one; the game then reuses the same tile as the falling piece, the cleared-word card and the phone notice.\n\nDensity is calm. The board is the one large object, with a single narrow side panel; nothing competes with the tiles. Colour comes from the tiles and one red action; the table itself is neutral and warm, never white or black.\n\nTwo themes share the world. Light is the cream table. Dark is the same table at night: only ground, panels, text and shadows change; the tiles keep their colours and inks.",
+    "overview": "One world: a warm cream tabletop with bevelled wooden letter tiles in the manner of a Scrabble specimen poster, recreated under its own title. Everything that moves or can be read is either a tile or sits on the table beside one. The cover spells TETRIS across, crossing FLORO down on a shared R, as a crossword of tiles (5 rows by 6 columns) that settle in one by one; the game then reuses the same tile as the falling piece, the cleared-word card and the phone notice.\n\nDensity is calm. The board is the one large object, with a single narrow side panel; nothing competes with the tiles. Colour comes from the tiles and one red action; the table itself is neutral and warm, never white or black.\n\nTwo themes share the world. Light is the cream table. Dark is the same table at night: only ground, panels, text and shadows change; the tiles keep their colours and inks.",
     "keyCharacteristics": [
       "Bevelled tiles: top highlight, bottom inner edge, soft contact shadow.",
       "Seven earth tile colours, each paired with its own ink.",

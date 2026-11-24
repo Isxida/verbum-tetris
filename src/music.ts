@@ -3,6 +3,7 @@ import gees from '../mumumusic/Gees.mp3';
 import psycho from '../mumumusic/Psycho.mp3';
 
 const LEVEL = 0.6; // volumen máximo de cada pista
+const TENSION_START = 10; // Psycho entra desde el segundo 10, no desde el inicio
 
 const track = (src: string, preload: 'auto' | 'none') => Object.assign(new Audio(src), { loop: true, volume: 0, preload });
 const T = { intro: track(going, 'auto'), game: track(gees, 'auto'), tension: track(psycho, 'none') };
@@ -29,6 +30,7 @@ function fade(a: HTMLAudioElement, to: number, ms: number) {
 // Fundido cruzado: la pista actual baja mientras sube la nueva. Si se invierte a mitad, parte del volumen actual.
 function crossfadeTo(next: Mode, ms: number) {
   if (next === mode) return;
+  if (next === 'tension') T.tension.currentTime = TENSION_START;
   fade(T[mode], 0, ms);
   fade(T[next], LEVEL, ms);
   mode = next;
@@ -48,6 +50,7 @@ export function toGame(ms: number) {
 }
 export const tension = () => crossfadeTo('tension', 3000);
 export const calm = () => crossfadeTo('game', 3000);
+export const toTitle = () => crossfadeTo('intro', 2000); // al perder, vuelve la música de la portada
 
 export function toggleMute() {
   muted = !muted;
